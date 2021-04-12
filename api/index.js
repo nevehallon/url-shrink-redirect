@@ -1,6 +1,5 @@
 require("dotenv").config();
 const MongoClient = require("mongodb").MongoClient;
-const client = new MongoClient(process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
 
 module.exports = async (req, res) => {
   const id = req.query.i;
@@ -18,41 +17,47 @@ module.exports = async (req, res) => {
     });
   } else {
     // id is ok
-    client.connect((err) => {
-      const db = client;
-      // connect with db
-      if (err) {
-        res.json({
-          status: false,
-          msg: "Cannot connect with Database",
-        });
-      } else {
-        const search = { tid: id };
-        var dbo = db.db("shortner"); // db name
-        dbo
-          .collection("data")
-          .find(search)
-          .toArray(function (errorr, result) {
-            if (errorr) {
-              // if error while fetching
-              res.json({
-                status: false,
-                msg: "Error while fetch database",
-              });
-            } else {
-              if (result[0] == undefined) {
+    MongoClient.connect(
+      process.env.DB_URL,
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      },
+      function (err, db) {
+        // connect with db
+        if (err) {
+          res.json({
+            status: false,
+            msg: "Cannot connect with Database",
+          });
+        } else {
+          const search = { tid: id };
+          var dbo = db.db("shortner"); // db name
+          dbo
+            .collection("data")
+            .find(search)
+            .toArray(function (errorr, result) {
+              if (errorr) {
+                // if error while fetching
                 res.json({
                   status: false,
-                  msg: "Cannot find a Url with the ID",
+                  msg: "Error while fetch database",
                 });
               } else {
-                res.writeHead(302, { Location: result[0].url });
-                res.end();
+                if (result[0] == undefined) {
+                  res.json({
+                    status: false,
+                    msg: "Cannot find a Url with the ID",
+                  });
+                } else {
+                  res.writeHead(302, { Location: result[0].url });
+                  res.end();
+                }
               }
-            }
-            db.close();
-          });
+              db.close();
+            });
+        }
       }
-    });
+    );
   }
 };
