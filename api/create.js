@@ -58,13 +58,13 @@ module.exports = async (req, res) => {
               var tidd = timestamp + rString; //added generated string
 
               //saving data into db
-              var dbo = db.db("shortner"); // db name
+              var dbo = db.db("PixelDB"); // db name
               var obj = {
                 tid: tidd,
                 ist: timestamp,
                 url: `${baseUrl}${encodeURIComponent(url.replace(baseUrl, ""))}`,
               };
-              dbo.collection("PixelDB").insertOne(obj, function (errorr, result) {
+              dbo.collection("data").insertOne(obj, function (errorr, result) {
                 if (errorr) {
                   // if error while writing
                   res.json({

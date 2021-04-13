@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
           });
         } else {
           const search = { tid: id };
-          var dbo = db.db("shortner"); // db name
+          var dbo = db.db("PixelDB"); // db name
           dbo
             .collection("data")
             .find(search)
