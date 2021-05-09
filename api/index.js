@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 require("dotenv").config();
 const MongoClient = require("mongodb").MongoClient;
 
@@ -36,8 +37,8 @@ module.exports = async (req, res) => {
           dbo
             .collection("data")
             .find(search)
-            .toArray(function (errorr, result) {
-              if (errorr) {
+            .toArray(function (erorr, result) {
+              if (erorr) {
                 // if error while fetching
                 res.json({
                   status: false,

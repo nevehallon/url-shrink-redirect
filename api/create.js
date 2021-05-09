@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 require("dotenv").config();
 const MongoClient = require("mongodb").MongoClient;
 const request = require("request");
+const fetch = require("node-fetch");
 const regex = /^(http[s]?:\/\/){0,1}(www\.){0,1}[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,5}[\.]{0,1}/; // validate url
+
 const baseUrl = "https://og-image-html.vercel.app/ ?images=";
 
 module.exports = async (req, res) => {
@@ -64,8 +67,8 @@ module.exports = async (req, res) => {
                 ist: timestamp,
                 url: `${baseUrl}${encodeURIComponent(url.replace(baseUrl, ""))}`,
               };
-              dbo.collection("data").insertOne(obj, function (errorr, result) {
-                if (errorr) {
+              dbo.collection("data").insertOne(obj, function (erorr, result) {
+                if (erorr) {
                   // if error while writing
                   res.json({
                     status: false,
@@ -73,13 +76,49 @@ module.exports = async (req, res) => {
                   });
                 } else {
                   var link = process.env.APP_URL + "/?i=" + result.ops[0].tid;
-                  res.json({
-                    //if everything goes correct
-                    status: true,
-                    link: link,
-                    unique_id: result.ops[0].tid,
-                    timestamp: result.ops[0].ist,
-                  });
+                  // res.json({
+                  //   //if everything goes correct
+                  //   status: true,
+                  //   link,
+                  //   unique_id: result.ops[0].tid,
+                  //   timestamp: result.ops[0].ist,
+                  // });
+                  try {
+                    fetch(
+                      "https://graph.facebook.com/v10.0/?access_token=1147993589050014%7Cm0H7F-TI2TnqQtJjTLjHax5OHV8",
+                      {
+                        headers: {
+                          accept: "*/*",
+                          "accept-language": "en-US,en;q=0.9",
+                          "content-type": "application/x-www-form-urlencoded",
+                          "sec-ch-ua": "' Not A;Brand';v='99', 'Chromium';v='90', 'Google Chrome';v='90'",
+                          "sec-ch-ua-mobile": "?0",
+                          "sec-fetch-dest": "empty",
+                          "sec-fetch-mode": "cors",
+                          "sec-fetch-site": "same-site",
+                        },
+                        referrer: "https://developers.facebook.com/",
+                        referrerPolicy: "origin-when-cross-origin",
+                        body:
+                          "debug=all&format=json&id=" +
+                          url +
+                          "&method=post&pretty=0&scrape=true&suppress_http_code=1&transport=cors",
+                        method: "POST",
+                        mode: "cors",
+                      }
+                    )
+                      .then((res) => res.json())
+                      .then((data) =>
+                        res.json({
+                          //if everything goes correct
+                          data,
+                          status: true,
+                          link,
+                          unique_id: result.ops[0].tid,
+                          timestamp: result.ops[0].ist,
+                        })
+                      );
+                  } catch (error) {}
                 }
                 db.close();
               });
