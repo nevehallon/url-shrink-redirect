@@ -101,7 +101,7 @@ module.exports = async (req, res) => {
                         referrerPolicy: "origin-when-cross-origin",
                         body:
                           "debug=all&format=json&id=" +
-                          url +
+                          link +
                           "&method=post&pretty=0&scrape=true&suppress_http_code=1&transport=cors",
                         method: "POST",
                         mode: "cors",
